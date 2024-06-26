@@ -1,0 +1,24 @@
+1. Create a Namespace
+kubectl create namespace my-namespace
+
+
+2. Switch to the Namespace
+kubectl config set-context --current --namespace=my-namespace  
+
+3. Verification
+kubectl config view --minify --output 'jsonpath={..namespace}' ; echo 
+
+Explanation
+kubectl create namespace <namespace-name>
+- Creates a new namespace with the specified name in your Kubernetes cluster.
+
+kubectl config set-context --current --namespace=<namespace-name>
+- Sets the current context to use the specified namespace. The --current flag ensures that the current context is updated without changing other settings.
+
+kubectl config view --minify --output 'jsonpath={..namespace}' ; echo 
+- Verifies the current namespace configured in your kubectl context. It uses JSONPath to extract and display the namespace.
+
+#############
+Step 3: Apply the Manifests
+kubectl apply -f nginx-deployment.yaml
+kubectl apply -f nginx-nodeport-service.yaml

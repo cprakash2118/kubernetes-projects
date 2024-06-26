@@ -19,6 +19,7 @@ kubectl config view --minify --output 'jsonpath={..namespace}' ; echo
 - Verifies the current namespace configured in your kubectl context. It uses JSONPath to extract and display the namespace.
 
 #############
+project-01- Resources Manifest files 
 Step 3: Apply the Manifests
 kubectl apply -f nginx-deployment.yaml
 kubectl apply -f nginx-nodeport-service.yaml

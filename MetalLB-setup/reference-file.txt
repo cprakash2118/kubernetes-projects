@@ -15,5 +15,81 @@ helm version
 Add the MetalLB Helm repository:
 helm repo add metallb https://metallb.github.io/metallb
 
+4- Update your Helm repositories:
+helm repo update
+
+5- Install MetalLB using Helm- Create a namespace for MetalLB
+kubectl create namespace metallb-system
+
+6- Install MetalLB:
+helm install metallb metallb/metallb --namespace metallb-system
+
+7- Configure MetalLB
+Create a ConfigMap for MetalLB:
+Create a ConfigMap with the IP range that MetalLB can use. Here's an example configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 172.25.231.150-172.25.231.160
+
+Apply the ConfigMap:
+Save the above content to a file named metallb-config.yaml and apply it:
+
+kubectl apply -f metallb-config.yaml
+
+kubectl get pods -n metallb-system
 
 
+Deploy a Test Service:
+Deploy a simple service to verify that MetalLB is functioning correctly. Here's an example Nginx service:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: default
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+
+
+- Deployment 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+#####
+Check the Service IP:
+After a few moments, check the external IP assigned to the service:
+kubectl get services

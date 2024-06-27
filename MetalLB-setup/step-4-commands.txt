@@ -1,0 +1,13 @@
+kubectl annotate svc ingress-nginx-controller -n ingress-nginx metallb.universe.tf/address-pool=default
+
+kubectl get svc -n ingress-nginx
+
+You should see the EXTERNAL-IP field populated with an IP address from the range you specified (e.g., 172.25.231.150-172.25.231.160).
+
+
+Update the Ingress Resource
+Update your Ingress resource to use the IP address of the Ingress Controller service:
+
+kubectl apply -f nginx-ingress.yaml
+
+curl http://172.25.231.150

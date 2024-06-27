@@ -1,0 +1,20 @@
+############################
+LAB-
+Deployment nginx based application.
+- Deployment [Used replicaSet]
+- Service [Type=NodePort]
+- Resources Created - POD, Service, Deployment & ReplicaSet - w.r.t namespace.
+- labels & Selectors 
+
+Deployment nginx based application.
+- Deployment [Used replicaSet]
+- Service [Type=ClusterIP] via - Service [Type=NodePort]
+
+
+Deployment nginx based application.
+- Deployment [Used replicaSet]
+- Service [Type=ClusterIP] via - Ingress.
+
+Step-01:- Install Ingress Controller [Can be done via HAProxy, Nginx]
+via Nginx setting up Ingress Controller:-
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml

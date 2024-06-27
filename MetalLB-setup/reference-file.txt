@@ -1,1 +1,19 @@
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/manifests/metallb.yaml
+
+#########################
+1-Install Helm on CentOS 9, Download the Helm binary:
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+2- Run the Helm installation script:
+chmod 700 get_helm.sh
+./get_helm.sh
+
+Verify the Helm installation:
+helm version
+
+3- Add the MetalLB Helm Repository
+Add the MetalLB Helm repository:
+helm repo add metallb https://metallb.github.io/metallb
+
+
+

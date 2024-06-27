@@ -18,3 +18,9 @@ Deployment nginx based application.
 Step-01:- Install Ingress Controller [Can be done via HAProxy, Nginx]
 via Nginx setting up Ingress Controller:-
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+
+
+
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.3/manifests/namespace.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.3/manifests/metallb.yaml
+

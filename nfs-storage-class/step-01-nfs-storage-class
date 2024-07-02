@@ -70,6 +70,8 @@ kubectl create namespace nfs-provisioner
 Install the NFS provisioner using Helm:
 helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --namespace nfs-provisioner --set nfs.server=172.25.231.145 --set nfs.path=/srv/nfs/kubedata
 
+Note: Install NFS Server on the node you want to use (e.g., 172.25.231.145):
+--set nfs.server=172.25.231.145 - replace with your NFS server IP [hostnae -I]
 
 
 Create an NFS StorageClass

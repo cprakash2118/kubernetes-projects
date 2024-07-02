@@ -72,7 +72,18 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
 
 
 
+Create an NFS StorageClass
+Create a file named nfs-storageclass.yaml
+kubectl apply -f nfs-storageclass.yaml
 
+
+Create a PersistentVolumeClaim definition:
+Create a file named nfs-pvc.yaml:
+kubectl apply -f nfs-pvc.yaml
+
+Verify
+Check if the PVC is bound:
+kubectl get pvc
 
 
 

@@ -1,4 +1,4 @@
-To implement NFS storage on your Kubernetes cluster, you'll need to:
+Step 1: To implement NFS storage on your Kubernetes cluster, you'll need to:
 
     Set up an NFS server (if you don't already have one).
     Install NFS utilities on your Kubernetes nodes.
@@ -6,5 +6,36 @@ To implement NFS storage on your Kubernetes cluster, you'll need to:
     Create a PersistentVolume (PV).
     Create a PersistentVolumeClaim (PVC).
 
-Step 1: Set up an NFS Server
-    Install NFS Server on the node you want to use (e.g., 172.25.231.145):
+Set up an NFS Server
+
+Install NFS Server on the node you want to use (e.g., 172.25.231.145):
+sudo yum install -y nfs-utils
+
+
+Create an export directory:
+sudo mkdir -p /srv/nfs/kubedata
+sudo chown nobody:nogroup /srv/nfs/kubedata
+sudo chmod 777 /srv/nfs/kubedata
+
+Edit the NFS exports file:
+sudo vi /etc/exports
+/srv/nfs/kubedata *(rw,sync,no_subtree_check,no_root_squash)
+
+Add the following line:
+/srv/nfs/kubedata *(rw,sync,no_subtree_check,no_root_squash)
+
+
+Export the shared directory:
+sudo exportfs -rav
+sudo systemctl enable --now nfs-server
+
+
+
+
+
+Step 2: Install NFS Utilities on Kubernetes Nodes
+
+Install NFS utilities on all Kubernetes nodes:
+
+
+

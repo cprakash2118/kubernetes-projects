@@ -4,10 +4,11 @@ metadata:
   name: nfs-pv
 spec:
   capacity:
-    storage: 10Gi
+    storage: 1Gi
   accessModes:
-    - ReadWriteMany
+    - ReadOnlyMany
   nfs:
     path: /srv/nfs/kubedata
     server: 172.25.231.145
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-storage

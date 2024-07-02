@@ -47,7 +47,31 @@ curl -LO https://get.helm.sh/helm-v3.11.2-linux-amd64.tar.gz
 
 Extract the archive:
 tar -zxvf helm-v3.11.2-linux-amd64.tar.gz
+
+Move Helm binary to /usr/local/bin:
 sudo mv linux-amd64/helm /usr/local/bin/helm
+
+Verify Helm installation:
+helm version
+
+
+#############
+Step 4: Deploy the NFS Subdir External Provisioner
+Add the Helm repository:
+
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm repo update
+
+
+Create a namespace for the NFS provisioner:
+kubectl create namespace nfs-provisioner
+
+
+Install the NFS provisioner using Helm:
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --namespace nfs-provisioner --set nfs.server=172.25.231.145 --set nfs.path=/srv/nfs/kubedata
+
+
+
 
 
 

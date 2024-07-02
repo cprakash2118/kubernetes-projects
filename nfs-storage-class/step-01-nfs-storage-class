@@ -40,4 +40,17 @@ sudo yum install -y nfs-utils
 
 
 
+##############
+Step 3: Install Helm
+Download Helm 
+curl -LO https://get.helm.sh/helm-v3.11.2-linux-amd64.tar.gz
+
+Extract the archive:
+tar -zxvf helm-v3.11.2-linux-amd64.tar.gz
+sudo mv linux-amd64/helm /usr/local/bin/helm
+
+
+
+
+
 

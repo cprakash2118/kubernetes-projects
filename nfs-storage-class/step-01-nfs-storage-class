@@ -85,6 +85,11 @@ Verify
 Check if the PVC is bound:
 kubectl get pvc
 
+#######################
+Step 7: Use the PVC in Your Deployments
+
+You can now use the nfs-pvc in your Kubernetes deployments and pods to have persistent storage backed by your NFS server. 
+kubectl apply -f nfs-test-pod.yaml
 
 
 

@@ -1,0 +1,9 @@
+FROM ubi8/ubi:8.8
+MAINTAINER Chandra Prakash <binbash1807@gmail.com>
+LABEL description="example image for demo"
+RUN yum install -y httpd && \
+    yum clean all
+RUN echo "Hello from Containerfile" > /var/www/html/index.html 
+EXPOSE 80 
+CMD ["httpd", "-D" , "FOREGROUND" ]
+

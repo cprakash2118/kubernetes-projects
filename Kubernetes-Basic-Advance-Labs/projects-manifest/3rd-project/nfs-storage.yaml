@@ -1,0 +1,5 @@
+apiVersion: storage-k8-io/v1
+kind: StorageClass
+metadata: 
+  name: nfs-storage
+provisoner: example.com/nfs

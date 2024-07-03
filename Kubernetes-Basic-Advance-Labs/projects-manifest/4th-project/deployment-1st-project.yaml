@@ -1,0 +1,19 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: nginx-cp-deployment
+spec: 
+  replicas: 2
+  selector: 
+    matchLabels:
+      app: nginx-cp
+  template: 
+    metadata:
+      labels:
+        app: nginx-cp
+    spec: 
+      containers:
+      - name: nginx-cp
+        image: nginx:latest 
+        ports:
+        - containerPort: 80      

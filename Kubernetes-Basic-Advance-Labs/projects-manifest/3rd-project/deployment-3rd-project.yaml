@@ -1,0 +1,19 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: nginx-cip-ingress-deployment 
+spec: 
+  replicas: 2
+  selector: 
+    matchLabels:
+      app: nginx-cip-ingress
+  template: 
+    metadata:
+      labels:
+        app: nginx-cip-ingress
+    spec: 
+      containers:
+      - name: nginx-cip-ingress
+        image: nginx:latest 
+        ports:
+        - containerPort: 80      

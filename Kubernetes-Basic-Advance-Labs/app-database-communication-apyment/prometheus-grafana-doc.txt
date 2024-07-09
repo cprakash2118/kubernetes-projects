@@ -9,3 +9,8 @@ kubectl create namespace monitoring
 Install Prometheus Operator:
 helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring
 
+
+Verify the Installation:
+kubectl get pods -n monitoring
+
+

@@ -1,0 +1,43 @@
+Step 1: Define a StorageClass
+- First, we define a StorageClass. The main attribute of a static StorageClass is that it does not need a dynamic provisioner.
+- Create a file named static-storageclass.yaml:
+- In this configuration:
+    provisioner: kubernetes.io/no-provisioner indicates that the StorageClass does not dynamically provision volumes.
+    volumeBindingMode: WaitForFirstConsumer delays the binding and provisioning of a volume until a pod that uses the PVC is created.
+- Apply this StorageClass:
+  kubectl apply -f static-storageclass.yaml
+#############
+
+Step 2: Pre-Provision a PersistentVolume
+- Next, you manually create a PersistentVolume that references physical storage.
+- Create a file named static-pv.yaml:
+- This configuration sets:
+    hostPath as the storage source, which is suitable for single-node testing.
+    storageClassName: static-storage to associate this PV with the previously defined StorageClass.
+- Apply this PersistentVolume:
+ kubectl apply -f static-pv.yaml
+
+###############
+Step 3: Create a PersistentVolumeClaim
+- This PVC will claim the pre-provisioned PV.
+- Create a file named static-pvc.yaml:
+- Apply this PersistentVolumeClaim:
+  kubectl apply -f static-pvc.yaml
+
+###############
+Step 4: Deployment Using the PVC
+- Finally, create a Deployment that uses the PVC.
+- Create a file named app-deployment.yaml:
+  This setup mounts the volume at /usr/share/nginx/html inside the nginx container. Since the PVC is bound to our pre-provisioned PV, the nginx container will use the storage defined in hostPath.
+- Apply this Deployment:
+  kubectl apply -f app-deployment.yaml
+
+###############
+Step 4: Verify the Setup
+
+    Check the PersistentVolume: kubectl get pv
+    Check the PersistentVolumeClaim: kubectl get pvc
+    Check the Deployment: kubectl get deployment
+    Check the Pods to ensure they are running: kubectl get pods
+
+Refere manifest files 

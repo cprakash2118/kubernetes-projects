@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-app
+spec:
+  selector:
+    matchLabels:
+      app: example
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+      - name: app
+        image: nginx
+        volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: storage
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: static-pvc

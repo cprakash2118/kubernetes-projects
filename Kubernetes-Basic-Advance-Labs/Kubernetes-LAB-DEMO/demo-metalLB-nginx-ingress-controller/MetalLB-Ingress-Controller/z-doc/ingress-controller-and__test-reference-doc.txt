@@ -1,0 +1,117 @@
+############################
+LAB-
+Deployment nginx based application.
+- Deployment [Used replicaSet]
+- Service [Type=NodePort]
+- Resources Created - POD, Service, Deployment & ReplicaSet - w.r.t namespace.
+- labels & Selectors 
+
+Deployment nginx based application.
+- Deployment [Used replicaSet]
+- Service [Type=ClusterIP] via - Service [Type=NodePort]
+
+
+Deployment nginx based application.
+- Deployment [Used replicaSet]
+- Service [Type=ClusterIP] via - Ingress.
+
+Step-01:- Install Ingress Controller [Can be done via HAProxy, Nginx]
+via Nginx setting up Ingress Controller:-
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+
+
+######################## Or below using helm deloyment 
+
+
+5. Deploy an Ingress Controller
+Next, you’ll need an Ingress controller. For this example, we'll use Nginx:
+
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install nginx ingress-nginx/ingress-nginx
+
+
+6. Deploy a Sample Application
+Deploy a simple application that you can access through the Ingress and services:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-world
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+      - name: hello-world
+        image: crccheck/hello-world
+        ports:
+        - containerPort: 8000
+Apply this with kubectl apply -f <filename>.yaml.
+
+
+
+7. Expose the Application Using Service of Type NodePort and LoadBalancer
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: hello-world-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: hello-world
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hello-world-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: hello-world
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+Apply this with kubectl apply -f <filename>.yaml.
+
+
+
+
+8. Configure Ingress to Expose the Service
+Create an Ingress resource to expose the NodePort service:
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-world-ingress
+spec:
+  rules:
+  - host: hello-world.lab.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-world-nodeport
+            port:
+              number: 80
+Apply this with kubectl apply -f <filename>.yaml.
+
+9. Test Your Setup
+NodePort: Access your application via any node's IP and the allocated NodePort.
+LoadBalancer: Access your application via the external IP provided by MetalLB.
+Ingress: Access your application via the domain configured in the Ingress (e.g., hello-world.lab.example.com).

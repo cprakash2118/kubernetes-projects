@@ -13,4 +13,12 @@ helm install prometheus-operator prometheus-community/kube-prometheus-stack --na
 Verify the Installation:
 kubectl get pods -n monitoring
 
+Access Grafana Dashboard:
+Grafana is included in the kube-prometheus-stack and provides a powerful UI to visualize metrics.
+Port-forward Grafana service:
+kubectl port-forward svc/prometheus-operator-grafana -n monitoring 3000:80
+
+
+Access Grafana at http://localhost:3000 and use the default login (admin / prom-operator).
+
 

@@ -37,3 +37,8 @@ spec:
   endpoints:
   - port: web
     interval: 30s
+
+
+
+kubectl apply -f servicemonitor.yaml
+

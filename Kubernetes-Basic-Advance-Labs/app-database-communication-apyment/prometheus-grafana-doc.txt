@@ -1,0 +1,6 @@
+Add the Prometheus Community Helm Repo:
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+Create a Namespace for Monitoring:
+kubectl create namespace monitoring

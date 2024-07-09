@@ -1,0 +1,5 @@
+Step-1- Add the VPA Repository to Helm
+helm repo add autoscaler https://kubernetes.github.io/autoscaler
+helm repo update
+
+

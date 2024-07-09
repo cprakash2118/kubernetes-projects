@@ -22,3 +22,18 @@ kubectl port-forward svc/prometheus-operator-grafana -n monitoring 3000:80
 Access Grafana at http://localhost:3000 and use the default login (admin / prom-operator).
 
 
+
+Prometheus and Grafana Configuration:
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: example-servicemonitor
+  labels:
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      app: example-app
+  endpoints:
+  - port: web
+    interval: 30s

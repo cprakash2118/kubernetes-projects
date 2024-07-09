@@ -5,5 +5,12 @@ helm repo update
 Step 2: Install the VPA CRDs
 helm install vpa-crd autoscaler/vertical-pod-autoscaler --namespace kube-system --set installCRDs=true
 
+Step 3: Install the VPA
+helm install vpa autoscaler/vertical-pod-autoscaler --namespace kube-system
+
+Step 4: Verify the Installation
+kubectl get pods -n kube-system | grep vpa
+
+
 
 

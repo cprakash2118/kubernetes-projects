@@ -1,0 +1,77 @@
+Create the users and their associated certificates.
+Create the Kubernetes resources for RBAC (Roles and RoleBindings or ClusterRoles and ClusterRoleBindings).
+
+Step 1: Create Users and Certificates
+# Create directories for the users
+mkdir -p /etc/kubernetes/pki/users/{john,joe,jack,mack}
+
+# Create private keys for each user
+openssl genrsa -out /etc/kubernetes/pki/users/john/john.key 2048
+openssl genrsa -out /etc/kubernetes/pki/users/joe/joe.key 2048
+openssl genrsa -out /etc/kubernetes/pki/users/jack/jack.key 2048
+openssl genrsa -out /etc/kubernetes/pki/users/mack/mack.key 2048
+
+# Create CSR for each user
+openssl req -new -key /etc/kubernetes/pki/users/john/john.key -out /etc/kubernetes/pki/users/john/john.csr -subj "/CN=john/O=system:masters"
+openssl req -new -key /etc/kubernetes/pki/users/joe/joe.key -out /etc/kubernetes/pki/users/joe/joe.csr -subj "/CN=joe/O=project1"
+openssl req -new -key /etc/kubernetes/pki/users/jack/jack.key -out /etc/kubernetes/pki/users/jack/jack.csr -subj "/CN=jack/O=project1"
+openssl req -new -key /etc/kubernetes/pki/users/mack/mack.key -out /etc/kubernetes/pki/users/mack/mack.csr -subj "/CN=mack/O=project1"
+
+# Sign the certificates with the Kubernetes CA
+openssl x509 -req -in /etc/kubernetes/pki/users/john/john.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out /etc/kubernetes/pki/users/john/john.crt -days 365
+openssl x509 -req -in /etc/kubernetes/pki/users/joe/joe.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out /etc/kubernetes/pki/users/joe/joe.crt -days 365
+openssl x509 -req -in /etc/kubernetes/pki/users/jack/jack.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out /etc/kubernetes/pki/users/jack/jack.crt -days 365
+openssl x509 -req -in /etc/kubernetes/pki/users/mack/mack.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out /etc/kubernetes/pki/users/mack/mack.crt -days 365
+
+########
+Step 2: Configure kubeconfig for Each User
+# Create kubeconfig files for each user
+kubectl config set-credentials john --client-certificate=/etc/kubernetes/pki/users/john/john.crt --client-key=/etc/kubernetes/pki/users/john/john.key
+kubectl config set-credentials joe --client-certificate=/etc/kubernetes/pki/users/joe/joe.crt --client-key=/etc/kubernetes/pki/users/joe/joe.key
+kubectl config set-credentials jack --client-certificate=/etc/kubernetes/pki/users/jack/jack.crt --client-key=/etc/kubernetes/pki/users/jack/jack.key
+kubectl config set-credentials mack --client-certificate=/etc/kubernetes/pki/users/mack/mack.crt --client-key=/etc/kubernetes/pki/users/mack/mack.key
+
+kubectl config set-context john-context --cluster=kubernetes --user=john
+kubectl config set-context joe-context --cluster=kubernetes --user=joe --namespace=project1
+kubectl config set-context jack-context --cluster=kubernetes --user=jack --namespace=project1
+kubectl config set-context mack-context --cluster=kubernetes --user=mack --namespace=project1
+
+
+########
+Step 3: Create Roles and RoleBindings
+
+For John (Cluster Admin)
+kubectl create clusterrolebinding john-cluster-admin --clusterrole=cluster-admin --user=john
+
+
+For Joe (Admin for project1)
+kubectl create rolebinding joe-admin-binding --clusterrole=admin --user=joe --namespace=project1
+
+
+For Jack (View Access to project1)
+kubectl create rolebinding jack-view-binding --clusterrole=view --user=jack --namespace=project1
+
+For Mack (Edit Access to project1)
+  kubectl create rolebinding mack-edit-binding --clusterrole=edit --user=mack --namespace=project1
+
+#######
+Step 4: Verify Access
+Switch context and verify the permissions for each user.
+
+# As john
+kubectl config use-context john-context
+kubectl get pods --all-namespaces
+
+# As joe
+kubectl config use-context joe-context
+kubectl get pods --namespace=project1
+
+# As jack
+kubectl config use-context jack-context
+kubectl get pods --namespace=project1
+
+# As mack
+kubectl config use-context mack-context
+kubectl get pods --namespace=project1
+
+         

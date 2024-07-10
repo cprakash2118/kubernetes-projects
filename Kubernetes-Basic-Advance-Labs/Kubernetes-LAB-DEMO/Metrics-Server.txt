@@ -1,0 +1,42 @@
+Step 1: Install Metrics Server
+Clone the Metrics Server repository:
+
+git clone https://github.com/kubernetes-sigs/metrics-server.git
+cd metrics-server
+
+Deploy the Metrics Server:
+kubectl apply -f manifests/
+
+######
+Step 2: Verify the Deployment
+Check the Metrics Server deployment:
+kubectl get deployment metrics-server -n kube-system
+
+Ensure all pods are running:
+kubectl get pods -n kube-system | grep metrics-server
+
+######
+Step 3: Configure the Metrics Server
+Sometimes, depending on your cluster setup, you might need to configure the Metrics Server to work properly. 
+For example, you might need to add some flags to the deployment.
+
+Edit the Metrics Server deployment:
+kubectl edit deployment metrics-server -n kube-system
+
+Add the following flags to the container spec:
+yaml file
+    spec:
+      containers:
+      - args:
+        - --kubelet-insecure-tls
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+
+######
+Step 4: Verify Metrics Server is Working
+Check the Metrics Server logs for any errors:
+
+kubectl logs -n kube-system -l k8s-app=metrics-server
+Verify metrics are available:
+
+kubectl top nodes
+kubectl top pods

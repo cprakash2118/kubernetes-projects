@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-persistent-storage
+spec:
+  accessModes:
+    - ReadWriteMany
+  #storageClassName: nfs-storage
+  storageClassName: nfs-client 
+  resources:
+    requests:
+      storage: 1Gi

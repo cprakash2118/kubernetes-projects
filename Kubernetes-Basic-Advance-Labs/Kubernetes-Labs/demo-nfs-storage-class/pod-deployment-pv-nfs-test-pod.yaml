@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nfs-test-pod
+spec:
+  containers:
+    - name: nfs-test-container
+      image: busybox
+      command: ["/bin/sh", "-c", "sleep 3600"]
+      volumeMounts:
+        - name: nfs-volume
+          mountPath: /mnt
+  volumes:
+    - name: nfs-volume
+      persistentVolumeClaim:
+        claimName: nfs-pvc

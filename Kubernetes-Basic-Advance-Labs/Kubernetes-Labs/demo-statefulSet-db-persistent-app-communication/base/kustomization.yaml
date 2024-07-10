@@ -1,0 +1,10 @@
+apiVersion: kutomize.config.k8s.io/v1beta1
+kind: Kustomization 
+resources:
+- mysql-secret.yaml
+- statefulset-secret-updated-org.yaml
+#- statefulset.yaml
+- statefulset-mysql-svc.yaml
+- statefulset-deployment.yaml
+- statefulset-frontend-svc.yaml
+

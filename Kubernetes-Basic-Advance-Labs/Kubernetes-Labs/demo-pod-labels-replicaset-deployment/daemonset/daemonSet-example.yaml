@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginx-daemonset
+  labels:
+    app: nginx-daemonset
+spec:
+  selector:
+    matchLabels:
+      app: nginx-daemonset
+  template:
+    metadata:
+      labels:
+        app: nginx-daemonset
+    spec:
+      containers:
+      - name: nginx-daemonset
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "256Mi"
+          requests:
+            cpu: "0.1"
+            memory: "128Mi"
+        volumeMounts:
+        - name: nginx-storage
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: nginx-storage
+        emptyDir: {}

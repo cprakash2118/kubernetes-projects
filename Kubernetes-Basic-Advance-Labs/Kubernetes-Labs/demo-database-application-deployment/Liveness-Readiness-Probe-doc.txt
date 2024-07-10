@@ -1,0 +1,63 @@
+Liveness Probe
+A liveness probe determines if a container is still running. 
+If a liveness probe fails, the kubelet kills the container, which will be restarted according to its restart policy. 
+This is useful for cases where an application is running but has become unresponsive or deadlocked.
+
+
+Readiness Probe
+A readiness probe determines if a container is ready to start accepting traffic. 
+If the readiness probe fails, the Kubernetes service will not send traffic to the pod. 
+This ensures that traffic is only sent to pods that are actually ready to handle it, 
+helping manage temporary outages or delays during startup, such as during long initializations or when waiting for dependencies.
+
+Create this file and deploy
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: example-app
+  template:
+    metadata:
+      labels:
+        app: example-app
+    spec:
+      containers:
+      - name: web-container
+        image: example/web-app:latest
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          timeoutSeconds: 3
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 10
+          failureThreshold: 1
+
+
+
+Explanation:
+Liveness Probe: The liveness probe is configured to check the /healthz endpoint every 10 seconds, 
+starting after an initial delay of 15 seconds when the container first starts. 
+If the probe fails 3 times consecutively (as configured by failureThreshold), Kubernetes will restart the container.
+
+
+Readiness Probe: 
+The readiness probe checks the /ready endpoint every 10 seconds, 
+but starts checking only 5 seconds after the container starts. 
+If this endpoint does not return success on the first check (due to the failureThreshold set to 1), 
+Kubernetes marks the pod as not ready and does not route traffic to it until it passes.

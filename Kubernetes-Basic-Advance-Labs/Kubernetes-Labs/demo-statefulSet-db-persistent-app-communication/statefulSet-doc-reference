@@ -1,0 +1,121 @@
+Step 1: Define the PersistentVolumeClaim (PVC)
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-storage
+  resources:
+    requests:
+      storage: 5Gi
+
+
+Step 2: Define the MySQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: "mysql"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "yourpassword"
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-persistent-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "nfs-storage"
+      resources:
+        requests:
+          storage: 5Gi
+
+
+
+Step 3: Define the Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: your-frontend-image
+        ports:
+        - containerPort: 8000
+
+
+
+Step 4: Create a Service for MySQL
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+  selector:
+    app: mysql
+  clusterIP: None
+
+
+Step 5: Create a Service for the Frontend Application
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: frontend
+  type: LoadBalancer
+
+
+
+
+Deployment Procedure
+Apply the PVC for MySQL.
+Deploy the MySQL StatefulSet.
+Deploy the Frontend application.
+Create services for both MySQL and the Frontend.
+
+
+kubectl apply -f mysql-pvc.yaml
+kubectl apply -f mysql-statefulset.yaml
+kubectl apply -f frontend-deployment.yaml
+kubectl apply -f mysql-service.yaml
+kubectl apply -f frontend-service.yaml

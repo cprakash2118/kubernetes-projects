@@ -1,0 +1,19 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: famous-quote
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind:       Deployment
+    name:       famous-quote
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: "500m"
+          memory: "500Mi"
+        maxAllowed:
+          cpu: "2000m"
+          memory: "2Gi"
+        controlledResources: ["cpu", "memory"]

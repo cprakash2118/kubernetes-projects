@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-deployment
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: apache
+  template:
+    metadata:
+      labels:
+        app: apache
+    spec:
+      tolerations:
+      - key: "key1"
+        value: "value1"
+        operator: "Equal"
+        effect: "NoSchedule"
+      nodeSelector:
+          env: prod
+      containers:
+      - name: apache
+        image: quay.io/cprakash2118/apache-image-v1
+        ports:
+        - containerPort: 80

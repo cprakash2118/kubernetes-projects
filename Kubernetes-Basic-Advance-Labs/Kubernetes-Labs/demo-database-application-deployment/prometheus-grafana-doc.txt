@@ -1,0 +1,44 @@
+Add the Prometheus Community Helm Repo:
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+Create a Namespace for Monitoring:
+kubectl create namespace monitoring
+
+
+Install Prometheus Operator:
+helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring
+
+
+Verify the Installation:
+kubectl get pods -n monitoring
+
+Access Grafana Dashboard:
+Grafana is included in the kube-prometheus-stack and provides a powerful UI to visualize metrics.
+Port-forward Grafana service:
+kubectl port-forward svc/prometheus-operator-grafana -n monitoring 3000:80
+
+
+Access Grafana at http://localhost:3000 and use the default login (admin / prom-operator).
+
+
+
+Prometheus and Grafana Configuration:
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: example-servicemonitor
+  labels:
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      app: example-app
+  endpoints:
+  - port: web
+    interval: 30s
+
+
+
+kubectl apply -f servicemonitor.yaml
+

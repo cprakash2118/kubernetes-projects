@@ -1,0 +1,154 @@
+Prerequisites:
+- A running Kubernetes cluster.
+- kubectl configured to interact with your cluster.
+- Helm installed on your local machine.
+
+
+Step 1: Install Istio
+Download Istio:
+
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-<version>
+export PATH=$PWD/bin:$PATH
+
+
+Install Istio's base chart:
+istioctl install --set profile=default -y
+
+Verify installation:
+kubectl get pods -n istio-system
+
+#########
+Step 2: Install Jaeger
+Create a namespace for observability tools:
+
+kubectl create namespace observability
+Add the Jaeger Helm repository and install Jaeger:
+
+helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+helm install jaeger jaegertracing/jaeger --namespace observability
+
+Verify installation:
+kubectl get pods -n observability
+
+#######
+Step 3: Install Kiali
+Create a secret for Kiali authentication:
+USERNAME="admin"
+PASSPHRASE="admin"
+kubectl create secret generic kiali -n istio-system \
+--from-literal=username=$USERNAME \
+--from-literal=passphrase=$PASSPHRASE
+
+Install Kiali using Helm:
+helm repo add kiali https://kiali.org/helm-charts
+helm install kiali kiali/kiali-server --namespace istio-system
+
+Verify installation:
+kubectl get pods -n istio-system
+
+
+###########
+Step 4: Install Elasticsearch
+Add the Elasticsearch Helm repository:
+helm repo add elastic https://helm.elastic.co
+
+Install Elasticsearch:
+helm install elasticsearch elastic/elasticsearch -n observability
+
+Verify installation:
+kubectl get pods -n observability
+
+######
+Step 5: Integrate Jaeger, Kiali, and Elasticsearch with Istio
+5.1Configure Istio to use Jaeger:
+
+Add the following to your Istio configuration:
+yaml file
+
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istiocontrolplane
+  namespace: istio-system
+spec:
+  addonComponents:
+    tracing:
+      enabled: true
+      name: jaeger
+  values:
+    global:
+      proxy:
+        tracer: "jaeger"
+
+
+
+Apply the configuration:
+istioctl install -f <your-config-file>.yaml
+
+5.2-Configure Istio to use Kiali:
+Update your Istio configuration to include Kiali:
+yaml file
+
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istiocontrolplane
+  namespace: istio-system
+spec:
+  addonComponents:
+    kiali:
+      enabled: true
+
+
+Apply the configuration:
+istioctl install -f <your-config-file>.yaml
+
+
+5.3-Configure Istio to use Elasticsearch:
+Update your Istio configuration to include Elasticsearch:
+yaml file
+
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istiocontrolplane
+  namespace: istio-system
+spec:
+  addonComponents:
+    grafana:
+      enabled: true
+    kiali:
+      enabled: true
+    prometheus:
+      enabled: true
+    tracing:
+      enabled: true
+      name: jaeger
+  values:
+    global:
+      logging:
+        logAsJson: true
+        level: "info"
+
+
+Apply the configuration:
+istioctl install -f <your-config-file>.yaml
+
+
+
+
+Accessing the Dashboards
+Access Jaeger:
+kubectl port-forward service/jaeger-query 16686:16686 -n observability
+Open http://localhost:16686 in your browser.
+
+
+Access Kiali:
+kubectl port-forward service/kiali 20001:20001 -n istio-system
+Open http://localhost:20001 in your browser. Use the credentials set in the secret (admin/admin).
+
+Access Elasticsearch:
+kubectl port-forward service/elasticsearch-master 9200:9200 -n observability
+
+Open http://localhost:9200 in your browser.

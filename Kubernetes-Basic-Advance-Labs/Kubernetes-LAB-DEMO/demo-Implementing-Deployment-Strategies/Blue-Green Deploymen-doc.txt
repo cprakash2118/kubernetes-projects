@@ -51,7 +51,91 @@ Explanation:Initially, the version label is set to blue. To switch to green:
 - Change the service selector to version: green.
 
 
+######################### Blue/Green Setup
+Blue Environment Setup
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: blue
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.17.1
+        ports:
+        - containerPort: 80
 
+
+kubectl apply -f blue-deployment.yaml
+
+
+------------
+Green Environment Setup
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-green
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+      version: green
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: green
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.18.0  # Assume a newer version of the container
+        ports:
+        - containerPort: 80
+
+kubectl apply -f green-deployment.yaml
+
+
+Step 2: Kubernetes Service Setup
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+    version: blue  # Initial setup to blue
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+
+kubectl apply -f nginx-service.yaml
+
+
+Step 3: Switching Traffic from Blue to Green
+Once you are ready to switch traffic from the blue to the green environment:
+    Ensure the green deployment is ready and functioning as expected.
+    Modify the service to redirect traffic by changing the selector from version: blue to version: green:
+
+spec:
+  selector:
+    app: nginx
+    version: green  # Update to green
+
+
+kubectl apply -f nginx-service.yaml
 
 ###############################################################
 

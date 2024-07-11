@@ -1,7 +1,8 @@
 #!/bin/bash
  
 # The URL of your Kubernetes service
-URL="http://172.25.231.154"
+#URL="http://172.25.231.154"
+URL="http://172.25.231.155"
  
 # Total number of requests to simulate
 TOTAL_REQUESTS=100

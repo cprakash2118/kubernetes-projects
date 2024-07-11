@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  VERSION-NO: v1.4
+kind: ConfigMap
+metadata:
+  name: cm-green
+  namespace: demo-deployment-blue-green

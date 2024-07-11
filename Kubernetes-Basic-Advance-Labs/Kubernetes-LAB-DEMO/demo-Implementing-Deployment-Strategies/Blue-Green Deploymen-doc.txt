@@ -1,0 +1,141 @@
+Deploy a simple nginx application:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.17.1
+        ports:
+        - containerPort: 80
+
+
+kubectl apply -f nginx-deployment.yaml
+
+
+#########
+Implementing Blue/Green Deployment:
+
+LAB -Implement Blue/Green deployments using a service that selectively routes traffic between two deployments. 
+Assume you have two deployments, nginx-deployment-blue and nginx-deployment-green. 
+The service will switch traffic from blue to green.
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+    version: blue
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+
+Explanation:Initially, the version label is set to blue. To switch to green:
+- Update your green deployment and ensure it is ready.
+- Change the service selector to version: green.
+
+
+
+
+###############################################################
+
+Implementing Canary Deployment:
+For a canary deployment, you would typically adjust the number of replicas in your deployments:
+- Start with nginx-deployment at 100% capacity.
+- Deploy nginx-canary-deployment with a new version at a small percentage (e.g., 10% of the capacity).
+
+The service would route traffic to both deployments, but since the canary has fewer replicas, it receives less traffic:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-canary-deployment
+spec:
+  replicas: 1  # 10% if the main deployment has 10 replicas
+  selector:
+    matchLabels:
+      app: nginx
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: canary
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.18.0  # New version
+        ports:
+        - containerPort: 80
+
+
+-In both strategies, monitoring and rollback capabilities are crucial to handle any unforeseen errors 
+that might arise after deploying the new versions.
+
+***************
+Bash Script to Simulate Traffic and Display Distribution
+#!/bin/bash
+
+# The URL of your Kubernetes service
+URL="http://your-service-url"
+
+# Total number of requests to simulate
+TOTAL_REQUESTS=100
+
+# Counter for requests handled by the canary version
+CANARY_COUNT=0
+
+# Function to make a request and check the response
+function send_request() {
+    # Assuming the application returns a response with a version identifier
+    RESPONSE=$(curl -s $URL)
+    echo "Response: $RESPONSE"
+    if [[ "$RESPONSE" == *"canary"* ]]; then
+        CANARY_COUNT=$((CANARY_COUNT+1))
+    fi
+}
+
+# Simulate requests
+for (( i=0; i<$TOTAL_REQUESTS; i++ ))
+do
+    send_request
+done
+
+# Calculate percentages
+CANARY_PERCENTAGE=$((CANARY_COUNT * 100 / TOTAL_REQUESTS))
+STABLE_PERCENTAGE=$((100 - CANARY_PERCENTAGE))
+
+# Display results
+echo "Total requests: $TOTAL_REQUESTS"
+echo "Canary handled: $CANARY_COUNT requests ($CANARY_PERCENTAGE%)"
+echo "Stable handled: $((TOTAL_REQUESTS - CANARY_COUNT)) requests ($STABLE_PERCENTAGE%)"
+**************
+
+Explanation
+- URL Configuration: Replace "http://your-service-url" with the actual URL where your service is exposed.
+- Total Requests: Defines how many requests the script should simulate.
+- Response Handling: The script assumes that the response from your application includes some identifier to distinguish between versions, 
+like a simple string that includes the word "canary".
+- Traffic Simulation: The script makes a set number of requests and tracks how many are handled by the canary version.
+- Results Calculation and Display: It calculates and prints out the percentage of requests handled by each version.
+
+Running the Script - To run this script:
+  - Save it to a file, for example, simulate_traffic.sh.
+  - Make it executable: chmod +x simulate_traffic.sh.
+  - Execute the script: ./simulate_traffic.sh.

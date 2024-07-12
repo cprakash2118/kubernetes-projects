@@ -54,6 +54,14 @@ command:
 - --kubelet-preferred-address-types=InternalIP
 - --v=2
 
+containers:
+- name: metrics-server
+  image: k8s.gcr.io/metrics-server/metrics-server:v0.4.1
+  command:
+    - /metrics-server
+    - --kubelet-insecure-tls
+
+
 
 kubectl edit deployment metrics-server -n kube-system
 

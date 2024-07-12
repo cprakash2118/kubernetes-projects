@@ -61,7 +61,9 @@ containers:
     - /metrics-server
     - --kubelet-insecure-tls
 
-
+          - /metrics-server
+          - --kubelet-insecure-tls
+          - --kubelet-preferred-address-types=InternalIP
 
 kubectl edit deployment metrics-server -n kube-system
 

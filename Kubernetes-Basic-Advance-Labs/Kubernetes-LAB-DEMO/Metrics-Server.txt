@@ -71,6 +71,11 @@ containers:
         args:
           - --kubelet-insecure-tls
           - --kubelet-preferred-address-types=InternalIP
+
+openssl genrsa -out ca.key 2048
+openssl req -new -key ca.key -subj "/CN=Kubernetes-CA" -out ca.csr
+openssl x509 -req -in ca.csr -signkey ca.key -CAcreateserial -out ca.crt -days 1000
+
 -----------
 
 kubectl edit deployment metrics-server -n kube-system

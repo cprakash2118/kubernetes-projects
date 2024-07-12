@@ -40,3 +40,42 @@ Verify metrics are available:
 
 kubectl top nodes
 kubectl top pods
+##################################################### UPdated solution #######################################################
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+Edit the Metrics Server deployment for your environment:
+Sometimes, you might need to modify the default Metrics Server deployment parameters to suit your cluster's configuration, 
+especially to enable certain features or to adjust for cluster security requirements (like TLS). 
+For example, to enable verbose logs, you can edit the deployment and add command line arguments:
+
+command:
+- /metrics-server
+- --kubelet-insecure-tls
+- --kubelet-preferred-address-types=InternalIP
+- --v=2
+
+
+kubectl edit deployment metrics-server -n kube-system
+
+
+Deploy Metrics Server:
+After configuring the manifest file as needed, apply it using kubectl:
+
+
+kubectl apply -f <path-to-modified-components.yaml>
+
+Check the Metrics Server is running:
+To ensure that the Metrics Server has been deployed successfully and is running, use the following command:
+
+kubectl get pods -n kube-system | grep metrics-server
+You should see the Metrics Server pod in a running state.
+
+Verify Metrics Server collects metrics:
+After a few minutes, check that the Metrics Server starts collecting data:
+
+kubectl top nodes
+kubectl top pods -n kube-system
+These commands will show the CPU and memory usage for nodes and pods, respectively. If there's no data or an error, check the Metrics Server logs for issues:
+
+
+kubectl logs -n kube-system $(kubectl get pods -n kube-system | grep metrics-server | a

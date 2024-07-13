@@ -35,4 +35,18 @@ helm install metrics-server bitnami/metrics-server -f values.yaml -n kube-system
 
 kubectl get pods -n kube-system | grep metrics-server
 
+#############
+openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text -noout | grep -A 1 "Subject Alternative Name"
+
+sudo cp /etc/kubernetes/pki/apiserver.crt /etc/kubernetes/pki/apiserver.crt.backup
+sudo cp /etc/kubernetes/pki/apiserver.key /etc/kubernetes/pki/apiserver.key.backup
+
+sudo kubeadm init phase certs apiserver --apiserver-advertise-address=<apiserver-advertise-address> --apiserver-cert-extra-sans=<IP1,IP2,DNS1,DNS2>
+
+sudo systemctl restart kubelet
+
+kubectl delete pod -n kube-system -l k8s-app=metrics-server
+
+
+
 

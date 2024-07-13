@@ -48,5 +48,8 @@ sudo systemctl restart kubelet
 kubectl delete pod -n kube-system -l k8s-app=metrics-server
 
 
+sudo kubeadm init phase certs apiserver \
+  --apiserver-advertise-address=172.25.230.188 \
+  --apiserver-cert-extra-sans=172.25.230.188,172.25.231.33,172.25.231.142,172.25.231.145,172.25.231.150,k8s-master20-02.lab.example.com,k8s-worker20-01.lab.example.com,k8s-worker20-02.lab.example.com,node01.lab.example.com,myapp.lab.example.com
 
 

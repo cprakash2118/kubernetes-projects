@@ -23,3 +23,16 @@ kubectl get pods -n kube-system | grep metrics-server
 
 kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"
 
+##########
+helm delete metrics-server -n kube-system
+
+helm list -n kube-system  # List all releases in the 'kube-system' namespace
+helm list --all-namespaces  # List releases across all namespaces if unsure where it was deployed
+
+helm install metrics-server bitnami/metrics-server -n kube-system
+
+helm install metrics-server bitnami/metrics-server -f values.yaml -n kube-system
+
+kubectl get pods -n kube-system | grep metrics-server
+
+

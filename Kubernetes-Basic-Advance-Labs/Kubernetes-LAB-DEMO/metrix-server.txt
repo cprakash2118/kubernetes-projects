@@ -53,3 +53,55 @@ sudo kubeadm init phase certs apiserver \
   --apiserver-cert-extra-sans=172.25.230.188,172.25.231.33,172.25.231.142,172.25.231.145,172.25.231.150,k8s-master20-02.lab.example.com,k8s-worker20-01.lab.example.com,k8s-worker20-02.lab.example.com,node01.lab.example.com,myapp.lab.example.com
 
 
+###################
+Download and install istioctl:
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-*
+export PATH=$PWD/bin:$PATH
+
+
+Install Istio on your cluster:
+istioctl install --set profile=demo -y
+
+Enable automatic sidecar injection for your namespace:
+kubectl label namespace default istio-injection=enabled
+
+Step 2: Install Prometheus and Grafana for Metrics
+
+Install Prometheus:
+kubectl apply -f samples/addons/prometheus.yaml
+
+Install Grafana:
+kubectl apply -f samples/addons/grafana.yaml
+
+Step 3: Install Jaeger for Tracing
+
+Install Jaeger:
+kubectl apply -f samples/addons/jaeger.yaml
+
+Step 4: Install Kiali for Service Mesh Observability
+Install Kiali:
+kubectl apply -f samples/addons/kiali.yaml
+
+Step 5: Install Elasticsearch
+helm repo add elastic https://helm.elastic.co
+helm repo update
+helm install elasticsearch elastic/elasticsearch --version 7.9.3
+
+Step 6: Validate and Configure
+kubectl get pods,services -A
+
+Access Kiali dashboard:
+istioctl dashboard kiali
+
+Access Grafana dashboard:
+istioctl dashboard grafana
+
+Access Jaeger dashboard:
+istioctl dashboard jaeger
+
+
+Step 7: Deploy Your Applications
+Deploy your applications into the Kubernetes cluster. Make sure the namespace has Istio injection enabled if you want Istio to manage the traffic for those applications.
+
+

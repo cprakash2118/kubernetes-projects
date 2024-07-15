@@ -125,9 +125,4 @@ Push Code to Repository:Push code changes to your repository to trigger the Jenk
 
 Monitor Jenkins Pipeline:Monitor the Jenkins pipeline for successful completion of all stages, including build, push, and deploy.
 
-By following these steps, you will have a working CI/CD pipeline using Jenkins on Kubernetes. 
-The pipeline will automatically build, push, and deploy your application whenever changes are pushed to the repository.
-My kubernetes cluster using containerd 
-
-
 ###############

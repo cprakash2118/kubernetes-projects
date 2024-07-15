@@ -1,0 +1,19 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-specific2
+spec:
+  podSelector:
+    matchLabels:
+      app: famous-quotes
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            network: network-policies
+        podSelector:
+          matchLabels:
+            app: mysql
+      ports:
+      - port: 8000
+        protocol: TCP

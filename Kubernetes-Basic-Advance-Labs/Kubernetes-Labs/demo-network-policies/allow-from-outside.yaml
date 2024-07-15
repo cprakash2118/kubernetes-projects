@@ -1,0 +1,10 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-from-out
+spec:
+  podSelector: {}
+  ingress:
+    - from:
+      - ipBlock:
+            cidr: 172.25.231.0/16

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: famous-quotes
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: famous-quotes
+  template:
+    metadata:
+      labels:
+        app: famous-quotes
+    spec:
+      containers:
+      - name: famous-quotes
+        image: quay.io/cprakash2118/famous-quotes
+        ports:
+        - containerPort: 8000

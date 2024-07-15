@@ -1,0 +1,179 @@
+Implementing network policies in Kubernetes allows you to control the communication between pods and services. Network policies use selectors to define rules about which pods can communicate with each other. Below are the steps and some use cases for implementing network policies from scratch.
+Step-by-Step Implementation
+
+Ensure Network Plugin Supports Network Policies
+Make sure your cluster’s network plugin supports network policies. Common plugins like Calico, Cilium, and Weave Net support network policies.
+
+Create a Namespace:- Create a namespace to isolate the resources.
+kubectl create namespace network-policy-demo
+
+
+Deploy Sample Applications:- Deploy some sample applications to test network policies.
+
+yaml file
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: network-policy-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+
+kubectl apply -f nginx-deployment.yaml
+
+
+Deploy another application, such as a busybox pod, for testing.
+yaml file
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox
+  namespace: network-policy-demo
+  labels:
+    app: busybox
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command:
+      - sleep
+      - "3600"
+
+kubectl apply -f busybox-pod.yaml
+
+
+Create Network Policies
+    Default Deny All Traffic
+    This policy denies all ingress traffic to the pods in the namespace.
+
+    yaml file
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: network-policy-demo
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+
+kubectl apply -f default-deny.yaml
+
+Allow Ingress from Specific Pod - Allow traffic to the Nginx pods only from the busybox pod.
+
+yaml file
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-busybox-to-nginx
+  namespace: network-policy-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: busybox
+
+    kubectl apply -f allow-busybox-to-nginx.yaml
+
+
+Test Network Policies
+    Default Deny Policy
+    Check that no pod can communicate with Nginx.
+kubectl exec -it busybox -n network-policy-demo -- wget --spider --timeout=1 nginx
+
+
+This should fail.
+Allow Specific Pod
+After applying the policy to allow busybox to communicate with Nginx, the wget command should succeed.
+
+        kubectl exec -it busybox -n network-policy-demo -- wget --spider --timeout=1 nginx
+
+Use Cases
+
+    Isolate Applications
+    Ensure that only specific applications can communicate with each other. For example, allow traffic only between frontend and backend pods.
+
+    yaml file
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-backend
+  namespace: app
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+
+Restrict Ingress to a Namespace
+Deny all ingress traffic to a sensitive namespace except from a monitoring namespace.
+
+yaml file
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-except-monitoring
+  namespace: sensitive
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+
+Allow Traffic from Specific CIDR
+Allow traffic to a pod only from a specific CIDR range.
+
+yaml file
+
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-from-cidr
+      namespace: app
+    spec:
+      podSelector:
+        matchLabels:
+          app: myapp
+      policyTypes:
+      - Ingress
+      ingress:
+      - from:
+        - ipBlock:
+            cidr: 192.168.1.0/24
+
+Implementing network policies helps in securing and managing the communication between pods, thus enhancing the security of your Kubernetes cluster.

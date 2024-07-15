@@ -1,0 +1,133 @@
+Deploying a CI/CD pipeline using Jenkins on Kubernetes involves several steps, including setting up Jenkins, 
+configuring Jenkins to build and deploy applications, and using Kubernetes for deployment. Below are the detailed steps to achieve this:
+
+Step 1: Set Up Jenkins on Kubernetes
+
+Install Helm: Make sure Helm is installed on your Kubernetes master node. If not, install it using the following commands:
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+Add Jenkins Helm Repository:Add the Jenkins Helm chart repository and update Helm repositories.
+helm repo add jenkins https://charts.jenkins.io
+helm repo update
+
+Install Jenkins using Helm: Install Jenkins with the Helm chart.
+helm install jenkins jenkins/jenkins --namespace jenkins --create-namespace
+
+
+Get Jenkins Admin Password: After installation, retrieve the Jenkins admin password.
+kubectl get secret --namespace jenkins jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode
+
+Access Jenkins:Set up port forwarding to access Jenkins from your local machine.
+kubectl port-forward svc/jenkins --namespace jenkins 8080:8080
+
+Access Jenkins at http://localhost:8080 and log in using the retrieved admin password.
+
+
+Step 2: Configure Jenkins for CI/CD Pipeline
+Install Required Plugins:Install necessary plugins in Jenkins for building and deploying applications. These may include:
+        Kubernetes
+        Git
+        Pipeline
+        Blue Ocean
+
+Set Up Jenkins Credentials: Add necessary credentials in Jenkins (e.g., GitHub credentials, Docker Hub credentials).
+Create a Jenkins Pipeline: Create a Jenkins Pipeline job and define the pipeline script. Here is an example of a Jenkinsfile for a simple CI/CD pipeline:
+
+    groovy code 
+
+    pipeline {
+        agent {
+            kubernetes {
+                yaml """
+                apiVersion: v1
+                kind: Pod
+                spec:
+                  containers:
+                  - name: jnlp
+                    image: jenkins/inbound-agent
+                    args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
+                  - name: docker
+                    image: docker:latest
+                    command:
+                    - cat
+                    tty: true
+                """
+            }
+        }
+        environment {
+            DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-id')
+        }
+        stages {
+            stage('Checkout') {
+                steps {
+                    git url: 'https://github.com/your-repo.git', branch: 'main'
+                }
+            }
+            stage('Build') {
+                steps {
+                    container('docker') {
+                        sh 'docker build -t your-image-name .'
+                    }
+                }
+            }
+            stage('Push') {
+                steps {
+                    container('docker') {
+                        withDockerRegistry([credentialsId: 'dockerhub-credentials-id', url: '']) {
+                            sh 'docker push your-image-name'
+                        }
+                    }
+                }
+            }
+            stage('Deploy') {
+                steps {
+                    kubernetesDeploy(
+                        configs: 'k8s/deployment.yaml',
+                        kubeconfigId: 'kubeconfig-credentials-id'
+                    )
+                }
+            }
+        }
+    }
+
+
+Step 3: Deploy Application Using Kubernetes
+    Create Kubernetes Deployment Configuration:
+    Create a Kubernetes deployment configuration file (k8s/deployment.yaml). Here is an example:
+
+    yaml file 
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: your-app
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app: your-app
+      template:
+        metadata:
+          labels:
+            app: your-app
+        spec:
+          containers:
+          - name: your-app
+            image: your-image-name
+            ports:
+            - containerPort: 80
+
+    Apply Kubernetes Deployment:
+    Ensure the Kubernetes deployment configuration is applied in your Jenkins pipeline script. 
+The kubernetesDeploy step in the Jenkinsfile will handle this.
+
+Step 4: Test Your CI/CD Pipeline
+Push Code to Repository:Push code changes to your repository to trigger the Jenkins pipeline.
+
+Monitor Jenkins Pipeline:Monitor the Jenkins pipeline for successful completion of all stages, including build, push, and deploy.
+
+By following these steps, you will have a working CI/CD pipeline using Jenkins on Kubernetes. 
+The pipeline will automatically build, push, and deploy your application whenever changes are pushed to the repository.
+My kubernetes cluster using containerd 
+
+
+###############
